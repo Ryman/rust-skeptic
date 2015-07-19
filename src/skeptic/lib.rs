@@ -115,13 +115,21 @@ impl TestNameGen {
 }
 
 fn sanitize_test_name(s: &str) -> String {
-    s.to_lowercase().chars().map(|c| {
+    to_lowercase(s).chars().map(|c| {
         if c.is_alphanumeric() {
             c
         } else {
             '_'
         }
     }).collect()
+}
+
+// Only converting test names to lowercase to avoid style lints
+// against test functions.
+fn to_lowercase(s: &str) -> String {
+    use std::ascii::AsciiExt;
+    // FIXME: unicode
+    s.to_ascii_lowercase()
 }
 
 fn parse_code_block_info(info: &str) -> CodeBlockInfo {

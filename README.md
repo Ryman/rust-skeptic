@@ -46,6 +46,12 @@ Now any code blocks in `README.md` will be tested during `cargo test`.
 
 Not the same as rustdoc. TODO. TBD.
 
+````rust,ignore
+```
+fn bogus() -> int {
+```
+````
+
 # License
 
 MIT/Apache-2.0
