@@ -141,7 +141,7 @@ fn parse_code_block_info(info: &str) -> CodeBlockInfo {
     let mut seen_rust_tags = false;
     let mut seen_other_tags = false;
     let mut info = CodeBlockInfo {
-        is_rust: true,
+        is_rust: false,
         should_panic: false,
         ignore: false,
     };

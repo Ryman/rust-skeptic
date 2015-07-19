@@ -38,17 +38,24 @@ generated test cases to `cargo test`:
 include!(concat!(env!("OUT_DIR"), "/skeptic-tests.rs"));
 ```
 
-Now any code blocks in `README.md` will be tested during `cargo test`.
+Now any Rust code blocks in `README.md` will be tested during `cargo test`.
 
-[This `README.md` file itself is tested by Rust Skeptic](https://github.com/brson/rust-skeptic/blob/master/build.rs).
+# Users' Guide
 
-# Details
+Rust Skeptic is not based on rustdoc. It behaves similarly in many cases, but not all. Here's the lowdown on the Skeptic system.
 
-Not the same as rustdoc. TODO. TBD.
+*You must ask for `rust` code blocks explicitly to get Rust testing*, with <code>```rust</code>. This is different from rustdoc, which assumes code blocks are Rust. The reason for this is that common Markdown parsers, like that used on GitHub, also do not assume Rust by default: you either get both Rust syntax highlighting and testing, or no Rust syntax highlighting and testing.
+
+*Note: [this `README.md` file itself is tested by Rust Skeptic](https://github.com/brson/rust-skeptic/blob/master/build.rs).* Because it is illustrating how to use markdown syntax, the markup *on this document itself* is funky, and so is the output below, particularly when illustrating Markdown's code fences (<code>```rust</code>). Use your imagination to pretend the 
 
 <code>```rust,ignore</code>
-```rust,ignore
-fn bogus() -> int {
+```rust
+fn do_amazing_thing() -> i32 {
+   // TODO: How do I do this?
+   unimplemented!()
+}
+
+do_amazing_thing();
 ```
 <code>```</code>
 
