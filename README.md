@@ -49,7 +49,7 @@ Rust Skeptic is not based on rustdoc. It behaves similarly in many cases, but no
 *Note: [this `README.md` file itself is tested by Rust Skeptic](https://github.com/brson/rust-skeptic/blob/master/build.rs).* Because it is illustrating how to use markdown syntax, the markup *on this document itself* is funky, and so is the output below, particularly when illustrating Markdown's code fences (<code>```rust</code>). Use your imagination to pretend the 
 
 <code>```rust,ignore</code>
-```rust
+```rust ignore
 fn do_amazing_thing() -> i32 {
    // TODO: How do I do this?
    unimplemented!()
