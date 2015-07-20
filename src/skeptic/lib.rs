@@ -8,6 +8,11 @@ use std::path::{PathBuf, Path};
 use cmark::{Parser, Event, Tag};
 
 pub fn generate_doc_tests(docs: &[&str]) {
+    // This shortcut is specifically so examples in skeptic's on
+    // readme can call this function in non-build.rs contexts, without
+    // panicking below.
+    if docs.is_empty() { return; }
+    
     let out_dir = env::var("OUT_DIR").unwrap();
     let cargo_manifest_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
 
