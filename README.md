@@ -1,6 +1,6 @@
 # Be a Rust Documentation Skeptic
 
-Test your Rust Markdown documentation via Cargo.
+Test your Rust Markdown via Cargo.
 
 # Getting started
 
