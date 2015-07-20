@@ -69,7 +69,7 @@ It doesn't really matter what's in here.
 ```
 <code>```</code>
 
-You must summon The Rust with the The Words of Exampling: <code>```rust</code>. Backtick, backtick, backtick, `rust`, like thus:
+You must summon The Rust with the The Words of Exampling: backtick, backtick, backtick, `rust`, like thus:
 
 <code>```rust</code>
 ```rust
