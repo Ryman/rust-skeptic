@@ -1,4 +1,4 @@
-# Be a Rust Skeptic
+# Be a Rust Documentation Skeptic
 
 Test your Rust Markdown documentation via Cargo.
 
