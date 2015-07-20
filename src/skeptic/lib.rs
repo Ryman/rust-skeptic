@@ -41,56 +41,83 @@ struct Test {
     should_panic: bool
 }
 
-fn extract_tests(config: &Config) -> Result<Vec<Test>, IoError> {
-    let mut tests = Vec::new();
+struct DocTestSuite {
+    doc_tests: Vec<DocTest>
+}
+
+struct DocTest {
+    template: Option<String>,
+    tests: Vec<Test>
+}
+
+fn extract_tests(config: &Config) -> Result<DocTestSuite, IoError> {
+    let mut doc_tests = Vec::new();
     for doc in &config.docs {
         let ref mut path = config.root_dir.clone();
         path.push(doc);
         let new_tests = try!(extract_tests_from_file(path));
-        tests.extend(new_tests.into_iter());
+        doc_tests.push(new_tests);
     }
-    return Ok(tests);
+    return Ok(DocTestSuite { doc_tests: doc_tests });
 }
 
-fn extract_tests_from_file(path: &Path) -> Result<Vec<Test>, IoError> {
+fn extract_tests_from_file(path: &Path) -> Result<DocTest, IoError> {
     let mut tests = Vec::new();
-
+    let mut template = None;
+    
     let mut file = try!(File::open(path));
     let ref mut s = String::new();
     try!(file.read_to_string(s));
     let parser = Parser::new(s);
 
     let mut test_name_gen = TestNameGen::new(path);
-    let mut test_buffer = None;
+    let mut code_buffer = None;
 
     for event in parser {
         match event {
             Event::Start(Tag::CodeBlock(ref info)) => {
                 let code_block_info = parse_code_block_info(info);
                 if code_block_info.is_rust {
-                    test_buffer = Some(Vec::new());
+                    code_buffer = Some(Vec::new());
                 }
             }
             Event::Text(text) => {
-                if let Some(ref mut buf) = test_buffer {
+                if let Some(ref mut buf) = code_buffer {
                     buf.push(text.to_string());
                 }
             }
             Event::End(Tag::CodeBlock(ref info)) => {
                 let code_block_info = parse_code_block_info(info);
-                if let Some(buf) = test_buffer.take() {
-                    tests.push(Test {
-                        name: test_name_gen.advance(),
-                        text: buf,
-                        ignore: code_block_info.ignore,
-                        should_panic: code_block_info.should_panic
-                    });
+                if let Some(buf) = code_buffer.take() {
+                    if code_block_info.is_template {
+                        template = Some(join_strings(buf))
+                    } else {
+                        tests.push(Test {
+                            name: test_name_gen.advance(),
+                            text: buf,
+                            ignore: code_block_info.ignore,
+                            should_panic: code_block_info.should_panic
+                        });
+                    }
                 }
             }
             _ => ()
         }
     }
-    return Ok(tests);
+
+    Ok(DocTest {
+        template: template,
+        tests: tests
+    })
+}
+
+fn join_strings(ss: Vec<String>) -> String {
+    let mut s_ = String::new();
+    for s in ss {
+        s_.push_str(&s)
+    }
+
+    s_
 }
 
 struct TestNameGen {
@@ -144,6 +171,7 @@ fn parse_code_block_info(info: &str) -> CodeBlockInfo {
         is_rust: false,
         should_panic: false,
         ignore: false,
+        is_template: false
     };
     
     for token in tokens {
@@ -152,6 +180,7 @@ fn parse_code_block_info(info: &str) -> CodeBlockInfo {
             "rust" => { info.is_rust = true; seen_rust_tags = true }
             "should_panic" => { info.should_panic = true; seen_rust_tags = true }
             "ignore" => { info.ignore = true; seen_rust_tags = true }
+            "skeptic-template" => { info.is_template = true; seen_rust_tags = true }
             _ => { seen_other_tags = true }
         }
     }
@@ -164,30 +193,33 @@ fn parse_code_block_info(info: &str) -> CodeBlockInfo {
 struct CodeBlockInfo {
     is_rust: bool,
     should_panic: bool,
-    ignore: bool
+    ignore: bool,
+    is_template: bool
 }
 
-fn emit_tests(config: &Config, tests: Vec<Test>) -> Result<(), IoError> {
+fn emit_tests(config: &Config, suite: DocTestSuite) -> Result<(), IoError> {
     let mut file = try!(File::create(&config.out_file));
-    for test in tests {
-        if test.ignore {
-            try!(writeln!(file, "#[ignore]"));
+    for doc_test in suite.doc_tests {
+        for test in doc_test.tests {
+            if test.ignore {
+                try!(writeln!(file, "#[ignore]"));
+            }
+            if test.should_panic {
+                try!(writeln!(file, "#[should_panic]"));
+            }
+            try!(writeln!(file, "#[test] fn {}() {{", test.name));
+            if test.ignore {
+                try!(writeln!(file, "/*"));
+            }
+            for text in &test.text {
+                try!(write!(file, "    {}", text));
+            }
+            if test.ignore {
+                try!(writeln!(file, "*/"));
+            }
+            try!(writeln!(file, "}}"));
+            try!(writeln!(file, ""));
         }
-        if test.should_panic {
-            try!(writeln!(file, "#[should_panic]"));
-        }
-        try!(writeln!(file, "#[test] fn {}() {{", test.name));
-        if test.ignore {
-            try!(writeln!(file, "/*"));
-        }
-        for text in &test.text {
-            try!(write!(file, "    {}", text));
-        }
-        if test.ignore {
-            try!(writeln!(file, "*/"));
-        }
-        try!(writeln!(file, "}}"));
-        try!(writeln!(file, ""));
     }
 
     Ok(())
