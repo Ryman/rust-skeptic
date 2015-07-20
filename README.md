@@ -148,7 +148,7 @@ template, but we can specifiy a no-op template like so:
 Templates are [Rust format
 specifiers](http://doc.rust-lang.org/std/fmt/index.html) that must
 take a single argument (i.e. they need to contain the string "{}". See
-[the template example](template-example.html) for more on templates.
+[the template example](template-example.md) for more on templates.
 
 Rust Skeptic uses
 [`pulldown-cmark`](https://github.com/google/pulldown-cmark) for

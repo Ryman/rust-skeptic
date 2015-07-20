@@ -1,8 +1,8 @@
 # Skeptic Template Example
 
 This is an example of [Rust Skeptic
-Templates](README.html#skeptic-templates). See
-[README.md](README.html) for the main documentation.
+Templates](README.md#skeptic-templates). See
+[README.md](README.md) for the main documentation.
 
 Templates allow you to explicitly perform some of the automatic
 transformations that rustdoc does on code examples.
